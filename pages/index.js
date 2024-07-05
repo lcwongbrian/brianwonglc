@@ -9,7 +9,6 @@ import {
     ListGroup,
 } from "react-bootstrap";
 
-
 export default function Home() {
     const [skillList, setSkillList] = useState(null);
 
@@ -77,7 +76,6 @@ export default function Home() {
                     <Card>
                         <Card.Header>About Me</Card.Header>
                         <Card.Body>
-                            {/* <Card.Title>About Me</Card.Title> */}
                             <Card.Text>
                                 To be short, I am a STEAM-lover (STEAM for
                                 Science, Technology, Engineering, Art,
@@ -86,23 +84,23 @@ export default function Home() {
                                 <br />
                                 When choosing what degree to study in
                                 university, I chose Engineering Physics solely
-                                because of my love to science. In the meantime
-                                of my studying, I discovered my interest in
-                                programming. A dream of making scientific 3D
-                                graphical simulation started to grow. I made it
-                                happen in my final year project using OpenGL to
-                                visualize a huge data file, containing numerous
-                                frame of surface height information, in
-                                3-dimensional manner.
+                                because of my love to science. In the meantime,
+                                I discovered my interest in programming. My
+                                dream of making scientific 3D graphical
+                                simulation started to grow. I made it happen in
+                                my final year project using OpenGL to visualize
+                                a huge data file, containing numerous frames of
+                                surface height information, in 3-dimensional
+                                manner.
                                 <br />
                                 <br />
                                 After my graduation of the degree, I engaged in
-                                building services, semiconductuctor industries
-                                and finally I seized the opportunity to enter
+                                building services, semiconductor industries in
+                                turn before I seized the opportunity to enter
                                 information technology. I started as a trainee
-                                in virtualization in cloud computing back to the
+                                in virtualization in cloud computing back in the
                                 days AWS (Amazon Web Services) starting
-                                prevailing. I learned every thing about network,
+                                prevailing. I learned everything about networks,
                                 infrastructure, virtual machines. One day my
                                 team leader asked if I was interested in
                                 programming. My answer was a big "Yes"! This was
@@ -112,27 +110,27 @@ export default function Home() {
                                 developer), and me (as front-end developer).
                                 Finally, this team of two managed to launch a
                                 smart roster arrangement system for elderly
-                                healthcare organization from scratch. We were
+                                healthcare organizations from scratch. We were
                                 also invited my Microsoft to demonstrate our
                                 product in their Hong Kong office. After we all
                                 left that company, my former team leader joined
-                                a IoT (Internet of Things) startup and referred
+                                an IoT (Internet of Things) startup and referred
                                 me to work together again. This time I joined as
                                 a back-end developer, working on API, smart
                                 device / software interfacing, tools making and
                                 system deployment on cloud. With both front-end
-                                and back-end skillsets, I can then entered
+                                and back-end skillsets, I can then enter
                                 well-known enterprises like IBM and SCMP
                                 participating in large-scale projects.
                                 <br />
                                 <br />
-                                In recent years, I moved to Toronto for persuing
+                                In recent years, I moved to Toronto for pursuing
                                 another studying of a diploma in computer
                                 programming to strengthen my foundation in
                                 software development. I have already graduated
                                 with flying colors and now I am open to the
-                                market to continue my journey as software
-                                developer. Before starting the new potential
+                                market to continue my journey as a software
+                                developer. Before starting a new potential
                                 career, it is a good time to build something I
                                 like - 3D simulation. In this portfolio, I am
                                 thrilled to showcase my newly learnt 3D library,
@@ -146,22 +144,25 @@ export default function Home() {
                     <Card>
                         <Card.Header>Skills</Card.Header>
                         <ListGroup variant="flush">
-                            {skillList && skillList.map((item, i) => (
-                                <ListGroup.Item key={i}>
-                                    <b>{item.label}: </b>
-                                    {item.skills.map((skill) => (
-                                        <div
-                                            key={skill}
-                                            style={{
-                                                marginRight: "5px",
-                                                display: "inline-block",
-                                            }}
-                                        >
-                                            <Badge bg="light">{skill}</Badge>
-                                        </div>
-                                    ))}
-                                </ListGroup.Item>
-                            ))}
+                            {skillList &&
+                                skillList.map((item, i) => (
+                                    <ListGroup.Item key={i}>
+                                        <b>{item.label}: </b>
+                                        {item.skills.map((skill) => (
+                                            <div
+                                                key={skill}
+                                                style={{
+                                                    marginRight: "5px",
+                                                    display: "inline-block",
+                                                }}
+                                            >
+                                                <Badge bg="light">
+                                                    {skill}
+                                                </Badge>
+                                            </div>
+                                        ))}
+                                    </ListGroup.Item>
+                                ))}
                         </ListGroup>
                     </Card>
                     <br />
@@ -180,17 +181,23 @@ export default function Home() {
                                 libraries as the abstraction layer and GUI for
                                 OpenGL. It is re-written with Three.js, embedded
                                 in Next.js React framework via React-three-fiber
-                                renderer. Instead of storing the vertices into a
-                                huge text file, the vertices are now grouped by
-                                frame and stored in MongoDB. Upon toggling to
-                                certain frame, the corresponding vertices will
-                                be loaded from the database via a RESTful API
-                                written in Golang.
+                                renderer.
+                                <br />
+                                <br />
+                                Instead of storing the vertices into a huge text
+                                file, the vertices are now grouped by frame and
+                                stored in MongoDB. Upon toggling to certain
+                                frame, the corresponding vertices will be loaded
+                                from the database via a RESTful API written in
+                                Golang.
                             </Card.Text>
-                            <Button href="/surface" variant="info">Go</Button>                            
+                            <Button href="/surface" variant="info">
+                                Go
+                            </Button>
                         </Card.Body>
                         <Card.Footer>
-                            Applied technology: React, Next.js, Three.js, React-three-fiber, Leva, Golang, MongoDB
+                            Applied technology: React, Next.js, Three.js,
+                            React-three-fiber, Leva, Golang, MongoDB
                         </Card.Footer>
                     </Card>
                     <br />
