@@ -6,12 +6,10 @@ export default function SurfaceFrame(props) {
     const { frame } = props;    
 
     const frameSize = 128;
-    const lastFrame = 2155;
     const posOffset = 63.5;
     const rOffset = 0.01;
     const gOffset = 0.01;
     const bOffset = 0.15;
-    const retryCount = 10;
     const min = 61;
     const max = 72;
     let indexCnt = 0;
@@ -81,7 +79,7 @@ export default function SurfaceFrame(props) {
     }
 
     useEffect(() => {
-        const getFrame = async frame => {
+        const getFrame = async frame => {     
             const data = await getSurfaceById(frame);
             if (data?.surface_id && data?.vertices?.length > 0) {
                 transformFrame(data.vertices);
@@ -112,8 +110,7 @@ export default function SurfaceFrame(props) {
                     array={indexMatrix}
                     count={indexMatrix.length}
                     itemSize={1}
-                />
-                
+                />                
             </bufferGeometry>
             <meshLambertMaterial
                 vertexColors

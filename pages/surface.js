@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Row } from "react-bootstrap";
@@ -8,10 +8,9 @@ import SurfaceFrame from "@/components/SurfaceFrame";
 
 export default function Surface() {
     const lastFrame = 2155;
-
-    const onEditEnd = (value) => {
-        setFrame(value);
-    };
+    const intervalId = useRef(null);
+    const [frame, setFrame] = useState(1);
+    const [isPlay, setIsPlay] = useState(false);
 
     const [_, set] = useControls(() => ({
         currFrame: {
@@ -20,29 +19,54 @@ export default function Surface() {
             max: lastFrame,
             step: 1,
             label: "Frame",
-            onEditEnd
+            onEditEnd: (value) => {
+                setFrame(value);
+            }
         },
+        Play: button(() => {
+            setIsPlay((value) => !value);
+        }),
         Previous: button((get) => {
-            const frame = get("currFrame");
-            if (frame > 1) {
-                set({currFrame: frame - 1 })
+            const currFrame = get("currFrame");
+            if (currFrame > 1) {
+                set({currFrame: currFrame - 1 });
                 setFrame(get("currFrame"));
             }
         }),
         Next: button((get) => {
-            const frame = get("currFrame");
-            if (frame < lastFrame) {
-                set({currFrame: frame + 1 })
+            const currFrame = get("currFrame");
+            if (currFrame < lastFrame) {
+                set({currFrame: currFrame + 1 });
                 setFrame(get("currFrame"));
             }
         })
     }));
 
-    const [frame, setFrame] = useState(1);
+    useEffect(() => {
+        set({ currFrame: 1 });        
+        return () => {
+            clearInterval(intervalId.current);
+        }
+    }, []);
 
     useEffect(() => {
-        set({currFrame: 1 });
-    }, []);
+        if (frame > 0 && frame < lastFrame && isPlay) {
+            intervalId.current = setInterval((() => {
+                setFrame((value) => value + 1);
+            }), 500);
+        } else {
+            setIsPlay(false);
+            clearInterval(intervalId.current);
+        }     
+    }, [isPlay]);
+
+    useEffect(() => {
+        set({ currFrame: frame });
+        if (frame === 1 || frame === lastFrame) {
+            setIsPlay(false);
+            clearInterval(intervalId.current);
+        }
+    }, [frame]);
 
     return (
         <Row style={{height: "calc(100vh - 80px)"}}>
