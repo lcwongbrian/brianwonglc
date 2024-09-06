@@ -111,11 +111,15 @@ export default function MainNav() {
                                 <Link href="/surface" passHref legacyBehavior>
                                     <NavDropdown.Item active={router.pathname === "/surface"} onClick={handleCloseNavbar}>Surface Height Data Visualization</NavDropdown.Item>
                                 </Link>
+                                <Link href="/heat" passHref legacyBehavior>
+                                    <NavDropdown.Item active={router.pathname === "/heat"} onClick={handleCloseNavbar}>Heat Conduction Simulation</NavDropdown.Item>
+                                </Link>
                             </NavDropdown>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
+            <br />
             <br />
             <br />
         </>

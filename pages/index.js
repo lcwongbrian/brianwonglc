@@ -156,7 +156,7 @@ export default function Home() {
                                                     display: "inline-block",
                                                 }}
                                             >
-                                                <Badge bg="light">
+                                                <Badge bg="info">
                                                     {skill}
                                                 </Badge>
                                             </div>
@@ -198,6 +198,28 @@ export default function Home() {
                         <Card.Footer>
                             Applied technology: React, Next.js, Three.js,
                             React-three-fiber, Leva, Golang, MongoDB
+                        </Card.Footer>
+                    </Card>
+                    <br />
+                    <Card>
+                        <Card.Header>Demo</Card.Header>
+                        <Card.Img variant="top" src="/demo_heat.jpg" />
+                        <Card.Body>
+                            <Card.Title>Heat Conduction Simulation</Card.Title>
+                            <Card.Text>
+                                Simulation of time-dependent heat conduction
+                                process, applying Euler's method on 2D heat flow
+                                equation. Written with Three.js, embedded in
+                                Next.js React framework via React-three-fiber
+                                renderer.
+                            </Card.Text>
+                            <Button href="/heat" variant="info">
+                                Go
+                            </Button>
+                        </Card.Body>
+                        <Card.Footer>
+                            Applied technology: React, Next.js, Three.js,
+                            React-three-fiber, Leva
                         </Card.Footer>
                     </Card>
                     <br />

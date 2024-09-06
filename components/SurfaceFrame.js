@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import { getSurfaceById } from "@/lib/surface";
 
@@ -13,10 +13,6 @@ export default function SurfaceFrame(props) {
     const min = 61;
     const max = 72;
     let indexCnt = 0;
-
-    const verticesMatrix = new Float32Array(frameSize * frameSize * 3);
-    const indexMatrix = new Uint16Array((frameSize - 1) * (frameSize - 1) * 6);
-    const colorMatrix = new Float32Array(frameSize * frameSize * 3);
     const color = new THREE.Color();
 
     const vertexRef = useRef();
@@ -48,35 +44,43 @@ export default function SurfaceFrame(props) {
         colorRef.current.needsUpdate = true;
     };
 
-    for (let i = 0; i < frameSize; i++) {
-        for (let j = 0; j < frameSize; j++) {
-            const idx = i * frameSize + j;
-            const vertexIdx = 3 * idx;
-            
-            verticesMatrix[vertexIdx] = i - posOffset;
-            verticesMatrix[vertexIdx + 1] = j - posOffset;
-            verticesMatrix[vertexIdx + 2] = 0;
+    const [verticesMatrix, indexMatrix, colorMatrix] = useMemo(() => {
+        const verticesMatrix = new Float32Array(frameSize * frameSize * 3);
+        const indexMatrix = new Uint16Array((frameSize - 1) * (frameSize - 1) * 6);
+        const colorMatrix = new Float32Array(frameSize * frameSize * 3);
 
-            color.setRGB(rOffset, gOffset, bOffset, THREE.SRGBColorSpace);
-            colorMatrix[vertexIdx] = color.r;
-            colorMatrix[vertexIdx + 1] = color.g;
-            colorMatrix[vertexIdx + 2] = color.b;
-
-            if (i < frameSize - 1 && j < frameSize - 1) {
-                const v1 = idx;
-                const v2 = idx + 1;
-                const v3 = idx + 1 + frameSize;
-                const v4 = idx + frameSize;
-                indexMatrix[indexCnt] = v1;
-                indexMatrix[indexCnt + 1] = v2;
-                indexMatrix[indexCnt + 2] = v3;
-                indexMatrix[indexCnt + 3] = v3;
-                indexMatrix[indexCnt + 4] = v4;
-                indexMatrix[indexCnt + 5] = v1;
-                indexCnt += 6;
+        for (let i = 0; i < frameSize; i++) {
+            for (let j = 0; j < frameSize; j++) {
+                const idx = i * frameSize + j;
+                const vertexIdx = 3 * idx;
+                
+                verticesMatrix[vertexIdx] = i - posOffset;
+                verticesMatrix[vertexIdx + 1] = j - posOffset;
+                verticesMatrix[vertexIdx + 2] = 0;
+    
+                color.setRGB(rOffset, gOffset, bOffset, THREE.SRGBColorSpace);
+                colorMatrix[vertexIdx] = color.r;
+                colorMatrix[vertexIdx + 1] = color.g;
+                colorMatrix[vertexIdx + 2] = color.b;
+    
+                if (i < frameSize - 1 && j < frameSize - 1) {
+                    const v1 = idx;
+                    const v2 = idx + 1;
+                    const v3 = idx + 1 + frameSize;
+                    const v4 = idx + frameSize;
+                    indexMatrix[indexCnt] = v1;
+                    indexMatrix[indexCnt + 1] = v2;
+                    indexMatrix[indexCnt + 2] = v3;
+                    indexMatrix[indexCnt + 3] = v3;
+                    indexMatrix[indexCnt + 4] = v4;
+                    indexMatrix[indexCnt + 5] = v1;
+                    indexCnt += 6;
+                }
             }
         }
-    }
+
+        return [verticesMatrix, indexMatrix, colorMatrix];
+    }, []);
 
     useEffect(() => {
         const getFrame = async frame => {     

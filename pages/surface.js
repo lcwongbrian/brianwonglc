@@ -91,7 +91,7 @@ export default function Surface() {
                 <OrbitControls />
             </Canvas>
             <Leva 
-                titleBar={{ position: { x: 0, y: 50 } }}
+                titleBar={{ position: { x: 0, y: 70 } }}
             />
         </Row>
     );
