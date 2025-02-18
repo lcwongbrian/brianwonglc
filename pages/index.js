@@ -156,9 +156,7 @@ export default function Home() {
                                                     display: "inline-block",
                                                 }}
                                             >
-                                                <Badge bg="info">
-                                                    {skill}
-                                                </Badge>
+                                                <Badge bg="info">{skill}</Badge>
                                             </div>
                                         ))}
                                     </ListGroup.Item>
@@ -220,6 +218,26 @@ export default function Home() {
                         <Card.Footer>
                             Applied technology: React, Next.js, Three.js,
                             React-three-fiber, Leva
+                        </Card.Footer>
+                    </Card>
+                    <br />
+                    <Card>
+                        <Card.Header>Demo</Card.Header>
+                        <Card.Img variant="top" src="/demo_ripple.jpg" />
+                        <Card.Body>
+                            <Card.Title>GLSL Ripple Animation</Card.Title>
+                            <Card.Text>
+                                Animation created by altering the vertices and
+                                fragnment colors by GLSL so that an attenuated
+                                travelling wave pattern is shown.
+                            </Card.Text>
+                            <Button href="/ripple" variant="info">
+                                Go
+                            </Button>
+                        </Card.Body>
+                        <Card.Footer>
+                            Applied technology: GLSL, React, Next.js, Three.js,
+                            React-three-fiber
                         </Card.Footer>
                     </Card>
                     <br />
