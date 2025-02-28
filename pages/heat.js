@@ -1,65 +1,85 @@
-import { useEffect, useState, useRef } from "react";
-import { Canvas } from "@react-three/fiber";
+import { useEffect, useState, useRef, useMemo } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Row } from "react-bootstrap";
 import * as THREE from "three";
 import { useControls, Leva, button } from "leva";
+
+function CameraReset() {
+    const { viewport, camera } = useThree();
+    const { width } = viewport;   
+
+    useEffect(() => {
+        const distance = (1500 / width) ** 2 + 80;
+        camera.position.set(0, -distance - 150, distance);
+    }, []);
+}
 
 export default function Heat() {
     const frameSize = 128;
     const posOffset = 63.5;
     const k = 0.2;
     const initialTemp = 298;
-    let indexCnt = 0;
-    const verticesMatrix = new Float32Array(frameSize * frameSize * 3);
-    const indexMatrix = new Uint16Array((frameSize - 1) * (frameSize - 1) * 6);
-    const colorMatrix = new Float32Array(frameSize * frameSize * 3);
 
     const intervalId = useRef(null);
     const vertexRef = useRef();
     const colorRef = useRef();
+    const isInitialized = useRef(false);
+    const verticesMatrix = useRef(new Float32Array(frameSize * frameSize * 3));
+    const colorMatrix = useRef(new Float32Array(frameSize * frameSize * 3));
+
     const [isPlay, setIsPlay] = useState(false);
     const [frame, setFrame] = useState(0);
-    const [temp, setTemp] = useState(new Array(frameSize).fill(0).map(() => new Array(frameSize).fill(initialTemp)));
+    const [temp, setTemp] = useState(new Float32Array(frameSize * frameSize));
 
     const resetTemp = () => {
         if (isPlay || intervalId.current) {
             setIsPlay(false);
-            clearInterval(intervalId.current);
+            setFrame(0);
         }
 
-        setInitialCondition();
+        setTemp(new Float32Array(getInitialCondition()));
     };
 
-    const setInitialCondition = () => {
-        let result = structuredClone(temp);
-        for (let i = 0; i < result.length; i++) {
-            for (let j = 0; j < result[i].length; j++) {
-                result[i][j] = initialTemp;
-            }
-        }
-        for (let i = 0; i < 40; i++) {
-            for (let j = 0; j < 40; j++) {
-                result[i + 1][j + 1] = 773;
-                result[126 - i][j + 1] = 973;
-                result[i + 1][126 - j] = 1273;
-                result[126 - i][126 - j] = 1073;
-                result[i + 44][j + 44] = 0;
+    const getInitialCondition = () => {
+        const result = new Float32Array(frameSize * frameSize);
+        
+        for (let i = 0; i < frameSize; i++) {
+            for (let j = 0; j < frameSize; j++) {
+                const idx = i * frameSize + j;
+
+                if (i > 0 && i <= 40 && j > 0 && j <= 40) { 
+                    result[idx] = 773;
+                } else if (i >= 86 && i <= 126 && j > 0 && j <= 40) {
+                    result[idx] = 973;
+                } else if (i > 0 && i <= 40 && j >= 86 && j <= 126) {
+                    result[idx] = 1273;
+                } else if (i >= 86 && i <= 126 && j >= 86 && j <= 126) {
+                    result[idx] = 1073;
+                } else if (i >= 44 && i <= 83 && j >= 44 && j <= 83) {
+                    result[idx] = 0;
+                } else {
+                    result[idx] = initialTemp;
+                }
             }
         }
 
-        setTemp(result);
+        return result;
     };
 
     const calcNewFrame = () => {
-        let result = structuredClone(temp);
-        for (let i = 1; i < temp.length - 1; i++) {
-            for (let j = 1; j < temp[i].length - 1; j++) {
-                result[i][j] = k * (temp[i + 1][j] + temp[i - 1][j] + temp[i][j + 1] + temp[i][j - 1]) + (1 - 4 * k) * temp[i][j];
-            }
-        }
+        setTemp((prevTemp) => {
+            const newTemp = new Float32Array(prevTemp);
 
-        setTemp(result);
+            for (let i = 1; i < frameSize - 1; i++) {
+                for (let j = 1; j < frameSize - 1; j++) {
+                    const idx = i * frameSize + j;
+                    newTemp[idx] = k * (prevTemp[idx + 1] + prevTemp[idx - 1] + prevTemp[idx + frameSize] + prevTemp[idx - frameSize]) + (1 - 4 * k) * prevTemp[idx];
+                }
+            }
+
+            return newTemp;
+        });
     };
 
     const calcColor = (t) => {
@@ -77,120 +97,44 @@ export default function Heat() {
         return color;
     };
 
-    const renderFrame = () => {        
-        let positionAttr = vertexRef.current.array;
-        let colorAttr = colorRef.current.array;
+    useEffect(() => {
+        const verticesBuffer = verticesMatrix.current;
+        const colorBuffer = colorMatrix.current;
 
-        for (let i = 0; i < temp.length; i++) {
-            for (let j = 0; j < temp[i].length; j++) {
+        for (let i = 0; i < frameSize; i++) {
+            for (let j = 0; j < frameSize; j++) {
                 const idx = i * frameSize + j;
                 const vertexIdx = 3 * idx;
-                const color = calcColor(temp[i][j]);
+                
+                if (!isInitialized.current) {
+                    verticesBuffer[vertexIdx] = i - posOffset;
+                    verticesBuffer[vertexIdx + 1] = j - posOffset;
+                }
+                verticesBuffer[vertexIdx + 2] = (temp[idx] - 273) / 10;
 
-                positionAttr[vertexIdx + 2] = (temp[i][j] - 273) / 10;
-                colorAttr[vertexIdx] = color.r;
-                colorAttr[vertexIdx + 1] = color.g;
-                colorAttr[vertexIdx + 2] = color.b;
+                const color = calcColor(temp[idx]);
+                colorBuffer[vertexIdx] = color.r;
+                colorBuffer[vertexIdx + 1] = color.g;
+                colorBuffer[vertexIdx + 2] = color.b;
             }
         }
 
-        vertexRef.current.needsUpdate = true;
-        colorRef.current.needsUpdate = true;
-    };
+        isInitialized.current = true;        
 
-    // const [verticesMatrix, indexMatrix, colorMatrix] = useMemo(() => {
-
-    //     const verticesMatrix = new Float32Array(frameSize * frameSize * 3);
-    //     const indexMatrix = new Uint16Array((frameSize - 1) * (frameSize - 1) * 6);
-    //     const colorMatrix = new Float32Array(frameSize * frameSize * 3);
-
-    //     for (let i = 0; i < frameSize; i++) {
-    //         for (let j = 0; j < frameSize; j++) {
-    //             const idx = i * frameSize + j;
-    //             const vertexIdx = 3 * idx;
-                
-    //             verticesMatrix[vertexIdx] = i - posOffset;
-    //             verticesMatrix[vertexIdx + 1] = j - posOffset;
-    //             verticesMatrix[vertexIdx + 2] = (temp[i][j] - 273) / 10;
-
-    //             const color = calcColor(temp[i][j]);
-    //             colorMatrix[vertexIdx] = color.r;
-    //             colorMatrix[vertexIdx + 1] = color.g;
-    //             colorMatrix[vertexIdx + 2] = color.b;
-
-    //             if (i < frameSize - 1 && j < frameSize - 1) {
-    //                 const v1 = idx;
-    //                 const v2 = idx + 1;
-    //                 const v3 = idx + 1 + frameSize;
-    //                 const v4 = idx + frameSize;
-    //                 indexMatrix[indexCnt] = v1;
-    //                 indexMatrix[indexCnt + 1] = v2;
-    //                 indexMatrix[indexCnt + 2] = v3;
-    //                 indexMatrix[indexCnt + 3] = v3;
-    //                 indexMatrix[indexCnt + 4] = v4;
-    //                 indexMatrix[indexCnt + 5] = v1;
-    //                 indexCnt += 6;
-    //             }
-    //         }
-    //     }
-
-    //     return [verticesMatrix, indexMatrix, colorMatrix];
-    // }, []);
-
-    useControls({
-        Play: button(() => {
-            setIsPlay((value) => !value);
-        }),
-        Reset: button(() => {
-            resetTemp();
-        })
-    });
-
-    useEffect(() => {
-        resetTemp();
-        return () => {
-            clearInterval(intervalId.current);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (vertexRef?.current?.array && colorRef?.current?.array) {
-            renderFrame();
+        if (vertexRef.current && colorRef.current) {
+            vertexRef.current.needsUpdate = true;
+            colorRef.current.needsUpdate = true;
         }
     }, [temp]);
 
-    useEffect(() => {
-        if (frame > 0) {
-            calcNewFrame();
-        }
-    }, [frame]);
+    const indexMatrix = useMemo(() => {
+        let indexCnt = 0;
+        const indexMatrix = new Uint16Array((frameSize - 1) * (frameSize - 1) * 6);
 
-    useEffect(() => {
-        if (isPlay) {
-            intervalId.current = setInterval((() => {
-                setFrame(frame => frame + 1);
-            }), 150);
-        } else {
-            setIsPlay(false);
-            clearInterval(intervalId.current);
-        }     
-    }, [isPlay]);
-
-    for (let i = 0; i < frameSize; i++) {
-        for (let j = 0; j < frameSize; j++) {
-            const idx = i * frameSize + j;
-            const vertexIdx = 3 * idx;
-            
-            verticesMatrix[vertexIdx] = i - posOffset;
-            verticesMatrix[vertexIdx + 1] = j - posOffset;
-            verticesMatrix[vertexIdx + 2] = (temp[i][j] - 273) / 10;
-
-            const color = calcColor(temp[i][j]);
-            colorMatrix[vertexIdx] = color.r;
-            colorMatrix[vertexIdx + 1] = color.g;
-            colorMatrix[vertexIdx + 2] = color.b;
-
-            if (i < frameSize - 1 && j < frameSize - 1) {
+        for (let i = 0; i < frameSize - 1; i++) {
+            for (let j = 0; j < frameSize - 1; j++) {
+                const idx = i * frameSize + j;
+                
                 const v1 = idx;
                 const v2 = idx + 1;
                 const v3 = idx + 1 + frameSize;
@@ -204,7 +148,42 @@ export default function Heat() {
                 indexCnt += 6;
             }
         }
-    }
+
+        return indexMatrix;
+    }, []);
+
+    useControls({
+        Play: button(() => {
+            setIsPlay((value) => !value);
+        }),
+        Reset: button(() => {
+            resetTemp();
+        })
+    });
+
+    useEffect(() => {
+        setTemp(new Float32Array(getInitialCondition()));
+        return () => clearInterval(intervalId.current);
+    }, []);
+
+    useEffect(() => {
+        if (frame > 0) {
+            calcNewFrame();
+        }
+    }, [frame]);
+
+    useEffect(() => {
+        if (isPlay && !intervalId.current) {
+            intervalId.current = setInterval((() => {
+                setFrame(frame => frame + 1);
+            }), 200);
+        } else {
+            clearInterval(intervalId.current);
+            intervalId.current = null;
+        } 
+        
+        return () => clearInterval(intervalId.current);
+    }, [isPlay]);
 
     return (
         <Row style={{height: "calc(100vh - 80px)"}}>
@@ -221,22 +200,22 @@ export default function Heat() {
                     position: [ 0, -240, 230 ]
                 } }
             >
+                <CameraReset />
                 <hemisphereLight intensity={2.5} />
-                <pointLight position={[10, 10, 10]} />
                 <mesh>
                     <bufferGeometry onUpdate={self => self.computeVertexNormals()}>
                         <bufferAttribute
                             ref={vertexRef}
                             attach='attributes-position'
-                            array={verticesMatrix}
-                            count={verticesMatrix.length / 3}
+                            array={verticesMatrix.current}
+                            count={verticesMatrix.current.length / 3}
                             itemSize={3}
                         />
                         <bufferAttribute
                             ref={colorRef}
                             attach='attributes-color'
-                            array={colorMatrix}
-                            count={colorMatrix.length / 3}
+                            array={colorMatrix.current}
+                            count={colorMatrix.current.length / 3}
                             itemSize={3}
                         />
                         <bufferAttribute

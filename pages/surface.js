@@ -57,7 +57,9 @@ export default function Surface() {
         } else {
             setIsPlay(false);
             clearInterval(intervalId.current);
-        }     
+        }
+        
+        return () => clearInterval(intervalId.current);
     }, [isPlay]);
 
     useEffect(() => {
@@ -80,11 +82,10 @@ export default function Surface() {
                     fov: 50,
                     near: 0.1,
                     far: 1000,
-                    position: [ 0, -240, 230 ]
+                    position: [ 0, -130, 130 ]
                 } }
             >
                 <hemisphereLight intensity={2.5} />
-                <pointLight position={[10, 10, 10]} />
                 <SurfaceFrame
                     frame={frame}
                 />

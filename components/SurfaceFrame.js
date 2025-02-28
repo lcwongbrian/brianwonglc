@@ -1,4 +1,5 @@
 import { useRef, useEffect, useMemo } from 'react';
+import { useThree } from "@react-three/fiber";
 import * as THREE from 'three';
 import { getSurfaceById } from "@/lib/surface";
 
@@ -18,10 +19,21 @@ export default function SurfaceFrame(props) {
     const vertexRef = useRef();
     const colorRef = useRef();
 
+    const { viewport, camera } = useThree();
+    const { width } = viewport;   
+
+    useEffect(() => {
+        const distance = (1500 / width) ** 2 + 80;
+        camera.position.set(0, -distance - 10, distance);
+    }, []);
+
     const transformFrame = (data) => {        
-        let positionAttr = vertexRef.current.array;
-        let colorAttr = colorRef.current.array;
-        
+        const positionAttr = vertexRef.current;
+        const colorAttr = colorRef.current;
+    
+        const positionArray = new Float32Array(positionAttr.array);
+        const colorArray = new Float32Array(colorAttr.array);
+    
         for (let i = 0; i < data.length; i++) {
             for (let j = 0; j < data[i].length; j++) {
                 const idx = i * frameSize + j;
@@ -30,18 +42,21 @@ export default function SurfaceFrame(props) {
                 const r = hRatio * (1 - rOffset) + rOffset;
                 const g = hRatio * (1 - gOffset) + gOffset;
                 const b = bOffset - hRatio * bOffset;
-
-                positionAttr[vertexIdx + 2] = data[i][j] - min;                
+    
+                positionArray[vertexIdx + 2] = data[i][j] - min;                
     
                 color.setRGB(r, g, b, THREE.SRGBColorSpace);
-                colorAttr[vertexIdx] = color.r;
-                colorAttr[vertexIdx + 1] = color.g;
-                colorAttr[vertexIdx + 2] = color.b;
+                colorArray[vertexIdx] = color.r;
+                colorArray[vertexIdx + 1] = color.g;
+                colorArray[vertexIdx + 2] = color.b;
             }
         }
-
-        vertexRef.current.needsUpdate = true;
-        colorRef.current.needsUpdate = true;
+    
+        positionAttr.set(positionArray);
+        colorAttr.set(colorArray);
+        
+        positionAttr.needsUpdate = true;
+        colorAttr.needsUpdate = true;
     };
 
     const [verticesMatrix, indexMatrix, colorMatrix] = useMemo(() => {
@@ -85,7 +100,7 @@ export default function SurfaceFrame(props) {
     useEffect(() => {
         const getFrame = async frame => {     
             const data = await getSurfaceById(frame);
-            if (data?.surface_id && data?.vertices?.length > 0) {
+            if (data?.surface_id && data?.vertices?.length > 0 && JSON.stringify(data.vertices) !== JSON.stringify(vertexRef.current.array)) {
                 transformFrame(data.vertices);
             }
         };
