@@ -4,6 +4,8 @@ import { OrbitControls } from "@react-three/drei";
 import { Row } from "react-bootstrap";
 import * as THREE from "three";
 import { useControls, Leva, button } from "leva";
+import vertexShader from "../shaders/heat/vertex.glsl";
+import fragmentShader from "../shaders/heat/fragment.glsl";
 
 function CameraReset() {
     const { viewport, camera } = useThree();
@@ -17,16 +19,17 @@ function CameraReset() {
 
 export default function Heat() {
     const frameSize = 128;
-    const posOffset = 63.5;
     const k = 0.2;
     const initialTemp = 298;
 
     const intervalId = useRef(null);
-    const vertexRef = useRef();
-    const colorRef = useRef();
-    const isInitialized = useRef(false);
-    const verticesMatrix = useRef(new Float32Array(frameSize * frameSize * 3));
-    const colorMatrix = useRef(new Float32Array(frameSize * frameSize * 3));
+    const tempTextureRef = useRef(new THREE.DataTexture(
+        new Float32Array(frameSize * frameSize * 4),
+        frameSize,
+        frameSize,
+        THREE.RGBAFormat,
+        THREE.FloatType
+    ));
 
     const [isPlay, setIsPlay] = useState(false);
     const [frame, setFrame] = useState(0);
@@ -82,75 +85,13 @@ export default function Heat() {
         });
     };
 
-    const calcColor = (t) => {
-        const color = new THREE.Color();
-        const r = t <= 373 ? 0 : (t > 1273 ? 1 : (t - 373) / 900);
-        const g = t <= 23 ? 0 : (
-            t <= 323 ? (t - 23) / 300 : (
-                t <= 373 ? 1 : (
-                    t > 1273 ? 0 : (1273 - t) / 900
-                )
-            )
-        );
-        const b = t > 323 ? 0 : (t < 273 ? 1 : (323 - t) / 50);
-        color.setRGB(r, g, b, THREE.SRGBColorSpace);
-        return color;
-    };
-
     useEffect(() => {
-        const verticesBuffer = verticesMatrix.current;
-        const colorBuffer = colorMatrix.current;
-
-        for (let i = 0; i < frameSize; i++) {
-            for (let j = 0; j < frameSize; j++) {
-                const idx = i * frameSize + j;
-                const vertexIdx = 3 * idx;
-                
-                if (!isInitialized.current) {
-                    verticesBuffer[vertexIdx] = i - posOffset;
-                    verticesBuffer[vertexIdx + 1] = j - posOffset;
-                }
-                verticesBuffer[vertexIdx + 2] = (temp[idx] - 273) / 10;
-
-                const color = calcColor(temp[idx]);
-                colorBuffer[vertexIdx] = color.r;
-                colorBuffer[vertexIdx + 1] = color.g;
-                colorBuffer[vertexIdx + 2] = color.b;
-            }
+        for (let i = 0; i < frameSize * frameSize; i++) {
+            tempTextureRef.current.image.data[i * 4] = temp[i] / 1273;
         }
 
-        isInitialized.current = true;        
-
-        if (vertexRef.current && colorRef.current) {
-            vertexRef.current.needsUpdate = true;
-            colorRef.current.needsUpdate = true;
-        }
+        tempTextureRef.current.needsUpdate = true;
     }, [temp]);
-
-    const indexMatrix = useMemo(() => {
-        let indexCnt = 0;
-        const indexMatrix = new Uint16Array((frameSize - 1) * (frameSize - 1) * 6);
-
-        for (let i = 0; i < frameSize - 1; i++) {
-            for (let j = 0; j < frameSize - 1; j++) {
-                const idx = i * frameSize + j;
-                
-                const v1 = idx;
-                const v2 = idx + 1;
-                const v3 = idx + 1 + frameSize;
-                const v4 = idx + frameSize;
-                indexMatrix[indexCnt] = v1;
-                indexMatrix[indexCnt + 1] = v2;
-                indexMatrix[indexCnt + 2] = v3;
-                indexMatrix[indexCnt + 3] = v3;
-                indexMatrix[indexCnt + 4] = v4;
-                indexMatrix[indexCnt + 5] = v1;
-                indexCnt += 6;
-            }
-        }
-
-        return indexMatrix;
-    }, []);
 
     useControls({
         Play: button(() => {
@@ -176,7 +117,7 @@ export default function Heat() {
         if (isPlay && !intervalId.current) {
             intervalId.current = setInterval((() => {
                 setFrame(frame => frame + 1);
-            }), 200);
+            }), 150);
         } else {
             clearInterval(intervalId.current);
             intervalId.current = null;
@@ -203,30 +144,19 @@ export default function Heat() {
                 <CameraReset />
                 <hemisphereLight intensity={2.5} />
                 <mesh>
-                    <bufferGeometry onUpdate={self => self.computeVertexNormals()}>
-                        <bufferAttribute
-                            ref={vertexRef}
-                            attach='attributes-position'
-                            array={verticesMatrix.current}
-                            count={verticesMatrix.current.length / 3}
-                            itemSize={3}
-                        />
-                        <bufferAttribute
-                            ref={colorRef}
-                            attach='attributes-color'
-                            array={colorMatrix.current}
-                            count={colorMatrix.current.length / 3}
-                            itemSize={3}
-                        />
-                        <bufferAttribute
-                            attach='index'
-                            array={indexMatrix}
-                            count={indexMatrix.length}
-                            itemSize={1}
-                        />                
-                    </bufferGeometry>
-                    <meshLambertMaterial
-                        vertexColors
+                    <planeGeometry
+                        attach="geometry"
+                        args={[128, 128, 128, 128]}
+                    />
+                    <shaderMaterial
+                        attach="material"
+                        uniforms={{
+                            tempTexture: { value: tempTextureRef.current },
+                            minTemp: { value: 0 },
+                            maxTemp: { value: 1273 }
+                        }}
+                        vertexShader={vertexShader}
+                        fragmentShader={fragmentShader}
                         side={THREE.DoubleSide}
                     />
                 </mesh>
