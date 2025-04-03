@@ -33,23 +33,20 @@ export default function SurfaceFrame(props) {
     
         const positionArray = new Float32Array(positionAttr.array);
         const colorArray = new Float32Array(colorAttr.array);
-    
+
         for (let i = 0; i < data.length; i++) {
-            for (let j = 0; j < data[i].length; j++) {
-                const idx = i * frameSize + j;
-                const vertexIdx = 3 * idx;
-                const hRatio = (data[i][j] - min) / (max - min);
-                const r = hRatio * (1 - rOffset) + rOffset;
-                const g = hRatio * (1 - gOffset) + gOffset;
-                const b = bOffset - hRatio * bOffset;
-    
-                positionArray[vertexIdx + 2] = data[i][j] - min;                
-    
-                color.setRGB(r, g, b, THREE.SRGBColorSpace);
-                colorArray[vertexIdx] = color.r;
-                colorArray[vertexIdx + 1] = color.g;
-                colorArray[vertexIdx + 2] = color.b;
-            }
+            const idx = 3 * i;
+            const hRatio = (data[i] - min) / (max - min);
+            const r = hRatio * (1 - rOffset) + rOffset;
+            const g = hRatio * (1 - gOffset) + gOffset;
+            const b = bOffset - hRatio * bOffset;
+
+            positionArray[idx + 2] = data[i] - min;                
+
+            color.setRGB(r, g, b, THREE.SRGBColorSpace);
+            colorArray[idx] = color.r;
+            colorArray[idx + 1] = color.g;
+            colorArray[idx + 2] = color.b;
         }
     
         positionAttr.set(positionArray);
@@ -100,8 +97,9 @@ export default function SurfaceFrame(props) {
     useEffect(() => {
         const getFrame = async frame => {     
             const data = await getSurfaceById(frame);
-            if (data?.surface_id && data?.vertices?.length > 0 && JSON.stringify(data.vertices) !== JSON.stringify(vertexRef.current.array)) {
-                transformFrame(data.vertices);
+            
+            if (data && data.length > 0 && JSON.stringify(data) !== JSON.stringify(vertexRef.current.array)) {
+                transformFrame(data);
             }
         };
         getFrame(frame);
