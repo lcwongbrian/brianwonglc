@@ -184,7 +184,7 @@ export default function Home() {
                                 <br />
                                 Instead of storing the vertices into a huge text
                                 file, the vertices are now grouped by frame and
-                                stored in MongoDB. Upon toggling to certain
+                                stored in PostgreSQL. Upon toggling to certain
                                 frame, the corresponding vertices will be loaded
                                 from the database via a RESTful API written in
                                 Golang.
@@ -195,7 +195,7 @@ export default function Home() {
                         </Card.Body>
                         <Card.Footer>
                             Applied technology: React, Next.js, Three.js,
-                            React-three-fiber, Leva, Golang, MongoDB
+                            React-three-fiber, Leva, Golang, PostgreSQL
                         </Card.Footer>
                     </Card>
                     <br />
