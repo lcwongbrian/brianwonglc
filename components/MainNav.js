@@ -37,6 +37,9 @@ export default function MainNav() {
                                 <Link href="/ripple" passHref legacyBehavior>
                                     <NavDropdown.Item active={router.pathname === "/ripple"} onClick={handleCloseNavbar}>GLSL Ripple Animation</NavDropdown.Item>
                                 </Link>
+                                <Link href="/modelImporter" passHref legacyBehavior>
+                                    <NavDropdown.Item active={router.pathname === "/modelImporter"} onClick={handleCloseNavbar}>3D Model Importer</NavDropdown.Item>
+                                </Link>
                             </NavDropdown>
                         </Nav>
                     </Navbar.Collapse>

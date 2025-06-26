@@ -7,6 +7,7 @@ import {
     Badge,
     Button,
     ListGroup,
+    Carousel,
 } from "react-bootstrap";
 
 export default function Home() {
@@ -68,15 +69,114 @@ export default function Home() {
 
     return (
         <>
-            <Row>
-                <Col md={4}>
-                    <Image src="/daruma.jpg" fluid rounded />
-                </Col>
-                <Col md={8}>
+            
+                    <Carousel>
+                        <Carousel.Item>
+                            <img
+                                className="d-block w-100"
+                                src="/demo_surface.jpg"
+                            />
+                            <Carousel.Caption>
+                                <h3>Surface Height Data Visualization</h3>
+                                <p>
+                                    The miniature version of my final year
+                                    project. This is a simulation of time-lapse
+                                    thin film coating process. The original
+                                    project was written in C++ with obsolete
+                                    GLUT and GLUI libraries as the abstraction
+                                    layer and GUI for OpenGL. It is re-written
+                                    with Three.js, embedded in Next.js React
+                                    framework via React-three-fiber renderer.
+                                </p>
+                                <p>
+                                    Instead of storing the vertices into a huge
+                                    text file, the vertices are now grouped by
+                                    frame and stored in PostgreSQL. Upon
+                                    toggling to certain frame, the corresponding
+                                    vertices will be loaded from the database
+                                    via a RESTful API written in Golang.
+                                </p>
+                                <p>
+                                    Applied technology: React, Next.js,
+                                    Three.js, React-three-fiber, Leva, Golang,
+                                    PostgreSQL
+                                </p>
+                                <Button href="/surface" variant="info">
+                                    Go
+                                </Button>
+                            </Carousel.Caption>
+                        </Carousel.Item>
+                        <Carousel.Item>
+                            <img
+                                className="d-block w-100"
+                                src="/demo_heat.jpg"
+                            />
+                            <Carousel.Caption>
+                                <h3>Heat Conduction Simulation</h3>
+                                <p>
+                                    Simulation of time-dependent heat conduction
+                                    process, applying Euler's method on 2D heat
+                                    flow equation. Written with Three.js,
+                                    embedded in Next.js React framework via
+                                    React-three-fiber renderer.
+                                </p>
+                                <p>
+                                    Applied technology: React, Next.js,
+                                    Three.js, React-three-fiber, Leva
+                                </p>
+                                <Button href="/heat" variant="info">
+                                    Go
+                                </Button>
+                            </Carousel.Caption>
+                        </Carousel.Item>
+                        <Carousel.Item>
+                            <img
+                                className="d-block w-100"
+                                src="/demo_modelImporter.jpg"
+                            />
+                            <Carousel.Caption>
+                                <h3>3D Model Importer</h3>
+                                <p>
+                                    A 3D model importer that accepts .obj, .stl
+                                    and provides preview feature.
+                                </p>
+                                <p>
+                                    Applied technology: React, Next.js,
+                                    Three.js, React-three-fiber
+                                </p>
+                                <Button href="/modelImporter" variant="info">
+                                    Go
+                                </Button>
+                            </Carousel.Caption>
+                        </Carousel.Item>
+                        <Carousel.Item>
+                            <img
+                                className="d-block w-100"
+                                src="/demo_ripple.jpg"
+                            />
+                            <Carousel.Caption>
+                                <h3>GLSL Ripple Animation</h3>
+                                <p>
+                                    Animation created by altering the vertices
+                                    and fragnment colors by GLSL so that an
+                                    attenuated travelling wave pattern is shown.
+                                </p>
+                                <p>
+                                    Applied technology: GLSL, React, Next.js,
+                                    Three.js, React-three-fiber
+                                </p>
+                                <Button href="/ripple" variant="info">
+                                    Go
+                                </Button>
+                            </Carousel.Caption>
+                        </Carousel.Item>
+                    </Carousel>
+                    <br />
                     <Card>
                         <Card.Header>About Me</Card.Header>
                         <Card.Body>
                             <Card.Text>
+                                <Image src="/daruma.jpg" fluid rounded style={{float: "left", margin: "0 20px 10px 0"}} />
                                 To be short, I am a STEAM-lover (STEAM for
                                 Science, Technology, Engineering, Art,
                                 Mathematics) who was born in Hong Kong.
@@ -164,82 +264,6 @@ export default function Home() {
                         </ListGroup>
                     </Card>
                     <br />
-                    <Card>
-                        <Card.Header>Demo</Card.Header>
-                        <Card.Img variant="top" src="/demo_surface.jpg" />
-                        <Card.Body>
-                            <Card.Title>
-                                Surface Height Data Visualization
-                            </Card.Title>
-                            <Card.Text>
-                                The miniature version of my final year project.
-                                This is a simulation of time-lapse thin film
-                                coating process. The original project was
-                                written in C++ with obsolete GLUT and GLUI
-                                libraries as the abstraction layer and GUI for
-                                OpenGL. It is re-written with Three.js, embedded
-                                in Next.js React framework via React-three-fiber
-                                renderer.
-                                <br />
-                                <br />
-                                Instead of storing the vertices into a huge text
-                                file, the vertices are now grouped by frame and
-                                stored in PostgreSQL. Upon toggling to certain
-                                frame, the corresponding vertices will be loaded
-                                from the database via a RESTful API written in
-                                Golang.
-                            </Card.Text>
-                            <Button href="/surface" variant="info">
-                                Go
-                            </Button>
-                        </Card.Body>
-                        <Card.Footer>
-                            Applied technology: React, Next.js, Three.js,
-                            React-three-fiber, Leva, Golang, PostgreSQL
-                        </Card.Footer>
-                    </Card>
-                    <br />
-                    <Card>
-                        <Card.Header>Demo</Card.Header>
-                        <Card.Img variant="top" src="/demo_heat.jpg" />
-                        <Card.Body>
-                            <Card.Title>Heat Conduction Simulation</Card.Title>
-                            <Card.Text>
-                                Simulation of time-dependent heat conduction
-                                process, applying Euler's method on 2D heat flow
-                                equation. Written with Three.js, embedded in
-                                Next.js React framework via React-three-fiber
-                                renderer.
-                            </Card.Text>
-                            <Button href="/heat" variant="info">
-                                Go
-                            </Button>
-                        </Card.Body>
-                        <Card.Footer>
-                            Applied technology: React, Next.js, Three.js,
-                            React-three-fiber, Leva
-                        </Card.Footer>
-                    </Card>
-                    <br />
-                    <Card>
-                        <Card.Header>Demo</Card.Header>
-                        <Card.Img variant="top" src="/demo_ripple.jpg" />
-                        <Card.Body>
-                            <Card.Title>GLSL Ripple Animation</Card.Title>
-                            <Card.Text>
-                                Animation created by altering the vertices and
-                                fragnment colors by GLSL so that an attenuated
-                                travelling wave pattern is shown.
-                            </Card.Text>
-                            <Button href="/ripple" variant="info">
-                                Go
-                            </Button>
-                        </Card.Body>
-                        <Card.Footer>
-                            Applied technology: GLSL, React, Next.js, Three.js,
-                            React-three-fiber
-                        </Card.Footer>
-                    </Card>
                     <br />
                     <Card>
                         <Card.Header>Links</Card.Header>
@@ -264,8 +288,6 @@ export default function Home() {
                             </ListGroup.Item>
                         </ListGroup>
                     </Card>
-                </Col>
-            </Row>
         </>
     );
 }
